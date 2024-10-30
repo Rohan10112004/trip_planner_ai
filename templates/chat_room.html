@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trip Planner AI Chat</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <style>
+        /* Basic reset */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Chat main area */
+        .chat-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #ffffff;
+            transition:0.3s ease; /* Smooth transition */
+            margin: left 0;; /* Start without margin */
+            background-image: url('/static/images/chat_background.png'); /* Geometric pattern image */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        
+        /* Sidebar styling */
+        .sidebar {
+            min-width: 250px;
+            max-width: 250px;
+            background-color: #343a40; /* Sidebar background color */
+            color: #ffffff;
+            
+            flex-direction: column;
+            transition: transform 0.3s ease;
+            transform: translateX(-100%); /* Initially hidden */
+            display: none;
+        }
+
+        .sidebar.active {
+            
+            transition: transform 0.3s ease;
+            transform: translateX(0);
+             /* Show when active */
+        }
+
+        .sidebar h6 {
+            padding: 20px;
+            background-color: #495057;
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .sidebar ul li {
+            padding: 15px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid #495057;
+            transition: background-color 0.3s;
+        }
+
+        .sidebar ul li:hover,
+        .sidebar ul li.active {
+            background-color: #6c757d;
+        }
+
+        /* When sidebar is active, shift the chat container */
+        .sidebar.active + .chat-container {
+            margin-left: 0;
+            /* Shift right when sidebar is visible */
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            width: auto;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background-color: #6c63ff;
+            color: #ffffff;
+            padding: 15px;
+            font-size: 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Chat box styling */
+        .chat-box {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+
+            display: flex;
+            flex-direction: column;
+           
+        }
+
+        /* Header toggle button styling */
+        .header-toggle {
+            background-color: #6c63ff; /* Match header background */
+            border: none;
+            color: #ffffff;
+            cursor: pointer;
+            font-size: 1.25rem;
+            transition: background-color 0.3s;
+            margin-right: 10px ;
+        }
+
+        .header-toggle:hover {
+            background-color: #5a54e0; /* Slightly darker shade for hover */
+        }
+
+        .chat-message {
+            max-width: 70%;
+            margin: 10px 0;
+            padding: 20px;
+            border-radius: 15px;
+            line-height: 1.5;
+
+        }
+
+        .chat-message.user {
+            align-self: flex-end;
+            background-color: #6c63ff;
+            color: #ffffff;
+        }
+
+        .chat-message.ai {
+            align-self: flex-start;
+            background-color: #e1e1e1;
+            color: #333333;
+        }
+
+        /* Input area */
+        .chat-input {
+            display: flex;
+            padding: 15px;
+            border-top: 1px solid #ccc;
+        }
+
+        .chat-input input {
+            flex-grow: 1;
+            border: none;
+            border-radius: 20px;
+            padding: 10px 20px;
+            font-size: 1rem;
+        }
+
+        .chat-input button {
+            background-color: #6c63ff;
+            border: none;
+            border-radius: 50%;
+            padding: 10px 15px;
+            color: #ffffff;
+            font-size: 1.25rem;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+
+        /* Sidebar toggle button styling */
+        .sidebar-toggle {
+            background-color: #495057; /* Match sidebar background */
+            border: none;
+            color: #ffffff;
+            cursor: pointer;
+            font-size: 1.25rem;
+            transition: background-color 0.3s;
+            margin-right: 10px ;
+        }
+
+        .sidebar-toggle:hover {
+            background-color: #343a40; 
+        }
+
+        
+    </style>
+</head>
+<body>
+
+<!-- Sidebar with previous chats -->
+<div class="sidebar" id="sidebar">
+    <h6>
+        <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">
+            <i class="bi bi-x"></i> <!-- Initially, it shows the close icon -->
+        </button> Previous Chats
+    </h6>
+    <ul id="chat-list">
+        <!-- Previous chats will be listed here dynamically -->
+    </ul>
+</div>
+
+<!-- Main Chat Container -->
+<div class="chat-container">
+    <div class="chat-header">
+        <span>
+            <button class="header-toggle" id="headerToggle" onclick="toggleSidebar()">
+                <i class="bi bi-list"></i> <!-- Hamburger icon -->
+            </button>Trip Planner AI
+        </span>
+        <div>
+            <span id="user-email"></span> <!-- Display user email -->
+            <button onclick="logout()" class="btn btn-danger btn-sm ml-2">
+                <i class="bi bi-box-arrow-right"></i> Logout
+            </button>
+        </div>
+    </div>
+
+    <!-- Chat box area -->
+    <div class="chat-box" id="chat-box" >
+        <!-- Messages will be dynamically added here -->
+    </div>
+
+    <!-- Input area -->
+    <div class="chat-input">
+        <input type="text" id="chat-input" placeholder="Type a message..." onkeydown="if(event.key === 'Enter') sendMessage()">
+        <button onclick="sendMessage()">
+            <i class="bi bi-send"></i> <!-- Send icon -->
+        </button>
+    </div>
+</div>
+
+<script>
+    // Load user info on page load
+    window.addEventListener("DOMContentLoaded", () => {
+        fetch('/get_user_info')
+            .then(response => response.json())
+            .then(data => {
+                if (data.username) {
+                    document.getElementById('user-email').textContent = data.username;
+                }
+            });
+    });
+
+    let chatHistory = {}; // Object to store multiple chat histories
+    let currentChatId = 'currentChat'; // Track current chat
+
+    // Function to load previous chats in the sidebar
+    function loadPreviousChats() {
+        const chatList = document.getElementById('chat-list');
+        chatList.innerHTML = '';
+        Object.keys(chatHistory).forEach(chatId => {
+            const listItem = document.createElement('li');
+            listItem.textContent = `Chat ${chatId}`;
+            listItem.onclick = () => loadChat(chatId);
+            listItem.classList.toggle('active', chatId === currentChatId); // Highlight active chat
+            chatList.appendChild(listItem);
+        });
+    }
+
+    // Load a specific chat
+    function loadChat(chatId) {
+        currentChatId = chatId;
+        const chatBox = document.getElementById('chat-box');
+        chatBox.innerHTML = ''; // Clear current messages
+        (chatHistory[chatId] || []).forEach(message => {
+            addMessage(message.text, message.sender);
+        });
+        loadPreviousChats(); // Refresh sidebar highlighting
+    }
+
+    // Toggle the sidebar (for mobile view)
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('active');
+        
+        const toggleButton = document.getElementById('sidebarToggle');
+        const headerToggleButton = document.getElementById('headerToggle');
+
+        // Change the icons based on sidebar state
+        if (sidebar.classList.contains('active')) {
+            toggleButton.innerHTML = '<i class="bi bi-x"></i>'; // Change to "close" icon
+            headerToggleButton.style.display = 'none'; 
+            sidebar.style.display='block'// Hide toggle button in header
+        } else {
+            toggleButton.innerHTML = '<i class="bi bi-list"></i>'; // Change to "hamburger" icon
+            headerToggleButton.style.display = 'inline-block';
+            sidebar.style.display='none' // Show toggle button in header
+        }
+    }
+
+    // Add a message to the chat area
+    function addMessage(text, sender, isHtml = false) {
+        const chatBox = document.getElementById('chat-box');
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('chat-message', sender);
+        
+        if (sender === 'ai') {
+            //text = geminiToHtml(text);
+            messageElement.innerHTML = text;
+        } else {
+            messageElement.textContent = text;
+        }
+        
+        chatBox.appendChild(messageElement);
+        chatBox.scrollTop = chatBox.scrollHeight; // Scroll to the bottom
+    }
+
+    // Send a message
+    function sendMessage() {
+        const input = document.getElementById('chat-input');
+        const text = input.value.trim();
+        if (text) {
+            addMessage(text, 'user');
+            saveMessage(text, 'user');
+            sendToServer(text);
+            input.value = '';
+        }
+    }
+
+    // Save the message to the chat history
+    function saveMessage(text, sender) {
+        if (!chatHistory[currentChatId]) chatHistory[currentChatId] = [];
+        chatHistory[currentChatId].push({ text, sender });
+    }
+
+    // Send the user's message to the Flask server
+    function sendToServer(userMessage) {
+        fetch('/send_message', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: userMessage })
+        })
+        .then(response => response.json())
+        .then(data => {
+            const aiMessage = data.response;
+            addMessage(aiMessage, 'ai', true);
+            saveMessage(aiMessage, 'ai');
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    // Convert Gemini markup to HTML
+    function geminiToHtml(geminiText) {
+        geminiText = geminiText.replace(/\n/g, '<br>');
+        geminiText = geminiText.replace(/^(#{1,6})\s+(.*)$/gm, (match, hashes, title) => {
+            const level = hashes.length;
+            return `<h${level}>${title}</h${level}>`;
+        });
+        geminiText = geminiText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        geminiText = geminiText.replace(/_(.*?)_/g, '<em>$1</em>');
+        geminiText = geminiText.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>');
+        geminiText = geminiText.replace(/^\*\s+(.*)$/gm, '<li>$1</li>');
+        geminiText = geminiText.replace(/(<li>.*<\/li>)/g, '<ul>$1</ul>');
+        geminiText = geminiText.replace(/^\d+\.\s+(.*)$/gm, '<li>$1</li>');
+        geminiText = geminiText.replace(/(<li>.*<\/li>)/g, '<ol>$1</ol>');
+        geminiText = geminiText.replace(/^>\s+(.*)$/gm, '<blockquote>$1</blockquote>');
+        return geminiText;
+    }
+
+    // Logout function
+    function logout() {
+        fetch('/logout', { method: 'POST' })
+            .then(() => {
+                window.location.href = '/';
+            })
+            .catch(error => console.error('Logout Error:', error));
+    }
+
+    loadPreviousChats(); // Initial load of previous chats
+</script>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

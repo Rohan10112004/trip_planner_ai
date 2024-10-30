@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log In</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f0f4f8;
+            font-family: 'Arial', sans-serif;
+        }
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 40px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #333;
+            text-align: center;
+        }
+        .form-control {
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary {
+            background-color: #4a90e2;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #357AE8;
+        }
+        .error-message {
+            color: red;
+            font-size: 0.875rem;
+            text-align: center;
+            display: none;
+        }
+        .footer-links {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .footer-links a {
+            color: #4a90e2;
+            text-decoration: none;
+        }
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <h2>Log In</h2>
+    {% if error %}
+    <div class="alert alert-danger" role="alert">
+        {{ error }}  <!-- Display error message from Flask -->
+    </div>
+    {% endif %}
+    <form id="login-form" action="{{ url_for('login') }}" method="POST">
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" class="form-control" id="email" name="email" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" class="form-control" id="password" name="password" required>
+        </div>
+        
+        <button type="submit" class="btn btn-primary btn-block">Log In</button>
+    </form>
+    <div class="footer-links">
+        <p>Don't have an account? <a href="{{ url_for('signup') }}">Sign up here</a>.</p>
+        <p><a href="{{ url_for('forgot_password') }}">Forgot Password?</a></p>
+    </div>
+    
+    
+</div>
+
+<!-- Bootstrap JS and dependencies (optional) -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+    // Client-side validation and error display
+    document.getElementById('login-form').addEventListener('submit', function(event) {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const errorMessage = document.getElementById('error-message');
+        
+        // Clear previous error messages
+        errorMessage.style.display = 'none';
+        errorMessage.textContent = '';
+
+        // Simple client-side validation
+        if (!email || !password) {
+            errorMessage.textContent = 'Both fields are required.';
+            errorMessage.style.display = 'block';
+            event.preventDefault(); // Prevent default form submission
+            return;
+        }
+
+        // Proceed with form submission
+        this.submit();
+    });
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,7 @@
+{% extends 'base.html' %} {% block content %}
+<div class="container result-container">
+    <h2>Trip Plan for {{ place }}</h2>
+    <pre>{{ trip_plan }}</pre>
+    <a class="button" href="/">Plan another trip</a>
+</div>
+{% endblock %}

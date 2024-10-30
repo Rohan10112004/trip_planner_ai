@@ -1,0 +1,7 @@
+flask
+firebase-admin
+pyrebase4
+google-generativeai>=0.7.2
+markdown2
+python-dotenv
+jinja2
